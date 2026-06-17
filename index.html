@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle Adafruit IO</title>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        h1 { color: #333; }
+        .btn {
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+            transition: background 0.3s;
+        }
+        .btn-ligar { background-color: #2ec4b6; }
+        .btn-ligar:hover { background-color: #209e93; }
+        .btn-desligar { background-color: #e71d36; }
+        .btn-desligar:hover { background-color: #b81427; }
+        #status { margin-top: 20px; font-weight: bold; color: #555; }
+    </style>
+</head>
+<body>
+
+    <h1>Controle do meu LED</h1>
+    
+    <button class="btn btn-ligar" onclick="enviarDados('1')">LIGAR</button>
+    <br>
+    <button class="btn btn-desligar" onclick="enviarDados('0')">DESLIGAR</button>
+
+    <p id="status">Status: Aguardando comando...</p>
+
+    <script>
+        // CONFIGURAÇÃO DO ADAFRUIT (Substitua com os seus dados)
+        const AIO_USERNAME = "YVFF"; 
+        const AIO_KEY = "aio_nLky88AnRdZ0jPcDzujQjgwKYnuq"; 
+        const FEED_KEY = "Teste_LED"; // Certifique-se de que o nome do feed está igual no Adafruit
+
+        async function enviarDados(valor) {
+            const statusTxt = document.getElementById("status");
+            statusTxt.innerText = "Enviando comando...";
+
+            const url = `https://io.adafruit.com/api/v2/${AIO_USERNAME}/feeds/${FEED_KEY}/data`;
+
+            try {
+                const response = await fetch(url, {
+                    method: "POST",
+                    headers: {
+                        "X-AIO-Key": AIO_KEY,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ value: valor })
+                });
+
+                if (response.ok) {
+                    statusTxt.innerText = `Sucesso! Enviado: ${valor === '1' ? 'LIGAR' : 'DESLIGAR'}`;
+                } else {
+                    statusTxt.innerText = "Erro na resposta do Adafruit.";
+                }
+            } catch (error) {
+                console.error("Erro:", error);
+                statusTxt.innerText = "Erro ao conectar à internet ou ao Adafruit.";
+            }
+        }
+    </script>
+</body>
+</html>
